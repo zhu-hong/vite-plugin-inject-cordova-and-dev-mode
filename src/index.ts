@@ -24,6 +24,7 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
   img-src 'self' data: content:;
   font-src 'self' data: content:;
   media-src *;
+  blob-src *;
   connect-src *;`
 
   let outDir: string = ''
