@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-inject-cordova-and-dev-mode",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "vite-plugin-inject-cordova-and-dev-mode",
   "type": "module",
   "main": "dist/index.js",
@@ -16,7 +16,8 @@
     "./*": "./*"
   },
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "prepublishOnly": "pnpm build"
   },
   "author": "d2m",
   "devDependencies": {
