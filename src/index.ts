@@ -18,6 +18,14 @@ interface IPluginConfig {
 export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[] = (config = {}) => {
   const { devCondition = 'localStorage.getItem("debug")', devInject = false } = config
 
+  const CSPContent = `default-src 'self' 'unsafe-eval';
+  script-src 'self' https://inner.shell.emtob.com 'unsafe-inline' 'unsafe-eval';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: content:;
+  font-src 'self' data: content:;
+  media-src *;
+  connect-src *;`
+
   let outDir: string = ''
   let intputs: string | string[] | { [entryAlias: string]: string } = ''
   const headMatch = /([ \t]*)<head[^>]*>/i
@@ -29,7 +37,7 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
     const injectCordova = html.replace(
       headMatch,
       (match) => `${match}
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval'; script-src 'self' https://inner.shell.emtob.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:; connect-src *;">
+  <meta http-equiv="Content-Security-Policy" content="${CSPContent}">
   <script src="https://inner.shell.emtob.com/cordova.js"></script>
   <script>IN_CORDOVA=!!window._cordovaNative;</script>`,
     )
@@ -89,13 +97,7 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
                 injectTo: 'head-prepend',
                 attrs: {
                   'http-equiv': 'Content-Security-Policy',
-                  'content': `default-src 'self' 'unsafe-eval';
-  script-src 'self' https://inner.shell.emtob.com 'unsafe-inline' 'unsafe-eval';
-  img-src 'self' data: content:;
-  style-src 'self' 'unsafe-inline';
-  font-src 'self' data: content:;
-  media-src *;
-  connect-src *;`
+                  'content': CSPContent,
                 },
               },
               {
@@ -116,6 +118,6 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
         },
         order: 'post',
       },
-    }
+    },
   ]
 }
