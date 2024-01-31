@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-inject-cordova-and-dev-mode",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "vite-plugin-inject-cordova-and-dev-mode",
   "type": "module",
   "main": "dist/index.js",
@@ -21,15 +21,13 @@
   },
   "author": "d2m",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "25.0.7",
+    "@rollup/plugin-node-resolve": "15.2.3",
     "@rollup/plugin-typescript": "11.1.6",
     "@types/node": "20.11.7",
     "rollup": "4.9.6",
     "rollup-plugin-dts": "6.1.0",
     "tslib": "2.6.2",
     "vite": "5.0.12"
-  },
-  "dependencies": {
-    "@rollup/plugin-commonjs": "25.0.7",
-    "@rollup/plugin-node-resolve": "15.2.3"
   }
 }
