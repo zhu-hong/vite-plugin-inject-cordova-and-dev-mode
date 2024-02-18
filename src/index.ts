@@ -26,6 +26,8 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
   media-src *;
   connect-src * blob: data: content:;`
 
+  const IN_CORDOVA = 'Object.defineProperty(window,"IN_CORDOVA",{get:()=>!!window._cordovaNative});'
+
   let outDir: string = ''
   let intputs: string | string[] | { [entryAlias: string]: string } = ''
   const headMatch = /([ \t]*)<head[^>]*>/i
@@ -39,7 +41,7 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
       (match) => `${match}
   <meta http-equiv="Content-Security-Policy" content="${CSPContent}">
   <script src="https://inner.shell.emtob.com/cordova.js"></script>
-  <script>IN_CORDOVA=!!window._cordovaNative;</script>`,
+  <script>${IN_CORDOVA}</script>`,
     )
 
     // 注入前往调试页的条件动作
@@ -90,7 +92,7 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
               {
                 tag: 'script',
                 injectTo: 'head',
-                children: 'IN_CORDOVA=!!window.cordova',
+                children: IN_CORDOVA,
               },
               {
                 tag: 'meta',
@@ -111,7 +113,7 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
               {
                 tag: 'script',
                 injectTo: 'head',
-                children: 'IN_CORDOVA=!!window._cordovaNative',
+                children: IN_CORDOVA,
               },
             ],
           }
