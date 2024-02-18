@@ -26,7 +26,7 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
   media-src *;
   connect-src * blob: data: content:;`
 
-  const IN_CORDOVA = 'Object.defineProperty(window,"IN_CORDOVA",{get:()=>!!window._cordovaNative});'
+  const IN_CORDOVA = 'window.IN_CORDOVA=window.april;'
 
   let outDir: string = ''
   let intputs: string | string[] | { [entryAlias: string]: string } = ''
