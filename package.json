@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-inject-cordova-and-dev-mode",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "vite-plugin-inject-cordova-and-dev-mode",
   "type": "module",
   "main": "dist/index.js",
