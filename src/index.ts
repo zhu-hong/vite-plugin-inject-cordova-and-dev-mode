@@ -19,7 +19,7 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
   const { devCondition = 'localStorage.getItem("debug")', devInject = false } = config
 
   const CSPContent = `default-src 'self' data: blob: https://* http://*;
-script-src 'self' 'unsafe-inline' 'unsafe-eval';
+script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* http://*;
 style-src 'self' 'unsafe-inline' data: blob:;
 connect-src *;`
 

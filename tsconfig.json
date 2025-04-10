@@ -1,14 +1,26 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "lib": ["esnext"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "resolveJsonModule": true,
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "baseUrl": ".",
+    "moduleResolution": "Bundler",
     "strict": true,
-    "strictNullChecks": true,
-    "esModuleInterop": true,
+    "useDefineForClassFields": true,
+    "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "skipLibCheck": true
-  }
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "allowJs": true,
+    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "exclude": [
+    "**/dist/**",
+    "**/node_modules/**"
+  ]
 }
