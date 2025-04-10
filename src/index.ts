@@ -18,9 +18,10 @@ interface IPluginConfig {
 export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[] = (config = {}) => {
   const { devCondition = 'localStorage.getItem("debug")', devInject = false } = config
 
-  const CSPContent = `default-src 'self' data: blob: https://*;
-script-src 'self' 'unsafe-inline' 'unsafe-eval' https://inner.shell.emtob.com https://*;
-style-src 'self' 'unsafe-inline' data: blob: https://*;`
+  const CSPContent = `default-src 'self' data: blob: https://* http://*;
+script-src 'self' 'unsafe-inline' 'unsafe-eval';
+style-src 'self' 'unsafe-inline' data: blob:;
+connect-src *;`
 
   const IN_CORDOVA = 'window.IN_CORDOVA=window.april||!1;'
 
