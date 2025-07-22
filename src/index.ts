@@ -18,10 +18,7 @@ interface IPluginConfig {
 export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[] = (config = {}) => {
   const { devCondition = 'localStorage.getItem("debug")', devInject = false } = config
 
-  const CSPContent = `default-src 'self' data: blob: https://* http://*;
-script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* http://*;
-style-src 'self' 'unsafe-inline' data: blob:;
-connect-src *;`
+  const CSPContent = `default-src 'self' data: blob: https://* http://*; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* http://*; style-src 'self' 'unsafe-inline' data: blob:; connect-src *;`
 
   const IN_CORDOVA = 'window.IN_CORDOVA=window.april||!1;'
 
@@ -61,7 +58,7 @@ connect-src *;`
 
   return [
     {
-      name: 'inject-cordova-dev-mode',
+      name: 'inject-sdk',
       apply: 'build',
       enforce: 'post',
       configResolved: (cfg) => {
@@ -79,7 +76,7 @@ connect-src *;`
       },
     },
     {
-      name: 'inject-cordova-dev-mode-when-serve',
+      name: 'inject-sdk-on-dev',
       apply: 'serve',
       transformIndexHtml: {
         handler: (html) => {
@@ -88,7 +85,7 @@ connect-src *;`
             tags: devInject ? [
               {
                 tag: 'script',
-                injectTo: 'head',
+                injectTo: 'head-prepend',
                 children: IN_CORDOVA,
               },
               {
@@ -109,7 +106,7 @@ connect-src *;`
             ] : [
               {
                 tag: 'script',
-                injectTo: 'head',
+                injectTo: 'head-prepend',
                 children: IN_CORDOVA,
               },
             ],
