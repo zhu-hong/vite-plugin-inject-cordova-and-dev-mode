@@ -1,26 +1,21 @@
 {
-  "compilerOptions": {
-    "module": "ESNext",
-    "target": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "baseUrl": ".",
-    "moduleResolution": "Bundler",
-    "strict": true,
-    "useDefineForClassFields": true,
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "strictNullChecks": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "noEmit": true,
-    "allowJs": true,
-    "isolatedModules": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
-  },
-  "exclude": [
-    "**/dist/**",
-    "**/node_modules/**"
-  ]
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"include": ["src/index.ts", "env.d.ts"],
+	"compilerOptions": {
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"lib": ["ESNext"],
+		"module": "nodenext",
+		"skipLibCheck": true,
+		"moduleResolution": "nodenext",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"moduleDetection": "force",
+		"noEmit": true,
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true
+	}
 }
