@@ -31,7 +31,7 @@ export const injectUsefulPlugin: PluginType = (config) => {
     const injectCordova = html.replace(
       headMatch,
       (match) => `${match}
-    <script src='https://inner.shell.emtob.com/cordova.js'></script>${injectResetcss ? `\n\t<style data-tag='reset-css'>${resetcss}</style>` : ''}`
+    <script src='https://inner.shell.emtob.com/cordova.js'></script>${injectResetcss ? `\n    <style data-tag='reset-css'>${resetcss}</style>` : ''}`
     )
 
     await Promise.all([
