@@ -63,7 +63,7 @@ export const injectUsefulPlugin: PluginType = (config) => {
         inputs = cfg.build.rollupOptions.input ?? resolve(process.cwd(), 'index.html')
       },
       writeBundle: async () => {
-        console.log('🪛 打包完成现在注入SDK等文件')
+        console.log('⚙️ 打包完成现在注入SDK等文件')
 
         if (typeof inputs === 'string') {
           await injectScript(inputs)
@@ -72,6 +72,8 @@ export const injectUsefulPlugin: PluginType = (config) => {
         } else {
           await Promise.all(Object.values(inputs).map(async (output) => await injectScript(output)))
         }
+
+        console.log('✅ 打包完成注入SDK等文件完成')
       },
     },
     {
