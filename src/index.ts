@@ -63,6 +63,8 @@ export const injectUsefulPlugin: PluginType = (config) => {
         inputs = cfg.build.rollupOptions.input ?? resolve(process.cwd(), 'index.html')
       },
       writeBundle: async () => {
+        console.log('🪛 打包完成现在注入SDK等文件')
+
         if (typeof inputs === 'string') {
           await injectScript(inputs)
         } else if (inputs instanceof Array) {
