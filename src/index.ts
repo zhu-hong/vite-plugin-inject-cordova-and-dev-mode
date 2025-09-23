@@ -31,26 +31,31 @@ export const injectUsefulPlugin: PluginType = (config) => {
     const injectCordova = html.replace(
       headMatch,
       (match) => `${match}
-  <script src='https://inner.shell.emtob.com/cordova.js'></script>${injectResetcss ? `\n\t<style data-tag='reset-css'>${resetcss}</style>` : ''}`
+    <script src='https://inner.shell.emtob.com/cordova.js'></script>${injectResetcss ? `\n\t<style data-tag='reset-css'>${resetcss}</style>` : ''}`
     )
 
-    // 注入前往调试页的条件动作和vconsole
-    const injectDevModeConditionAndVConsole = injectCordova.replace(
-      headMatch,
-      (match) => `${match}
-  <script>if(${jumpDevpageCondition}){location.href='./${parse(filepath).name}.dev.html'+location.search+location.hash}</script>
-  <script src='./vconsole.min.js'></script>`,
-    )
-    await writeFile(outputHtml, injectDevModeConditionAndVConsole)
-
-    // 创建devpage
-    const injectDevMode = injectCordova.replace(
-      headMatch,
-      (match) => `${match}
-  <script src='./vconsole.min.js'></script>
-  <script>_vConsole=new VConsole({onReady(){console.log(navigator.userAgent),_vConsole.show()}});</script>`,
-    )
-    await writeFile(resolve(outDir, dirname(filepath), `${parse(filepath).name}.dev.html`), injectDevMode)
+    await Promise.all([
+      (async () => {
+        // 注入前往调试页的条件动作和vconsole
+        const injectDevModeConditionAndVConsole = injectCordova.replace(
+          headMatch,
+          (match) => `${match}
+    <script>if(${jumpDevpageCondition}){location.href='./${parse(filepath).name}.dev.html'+location.search+location.hash}</script>
+    <script src='./vconsole.min.js'></script>`,
+        )
+        await writeFile(outputHtml, injectDevModeConditionAndVConsole)
+      })(),
+      (async () => {
+        // 创建devpage
+        const injectDevMode = injectCordova.replace(
+          headMatch,
+          (match) => `${match}
+    <script src='./vconsole.min.js'></script>
+    <script>_vConsole=new VConsole({onReady(){console.log(navigator.userAgent),_vConsole.show()}});</script>`,
+        )
+        await writeFile(resolve(outDir, dirname(filepath), `${parse(filepath).name}.dev.html`), injectDevMode)
+      })(),
+    ])
   }
 
   return [
@@ -63,8 +68,6 @@ export const injectUsefulPlugin: PluginType = (config) => {
         inputs = cfg.build.rollupOptions.input ?? resolve(process.cwd(), 'index.html')
       },
       writeBundle: async () => {
-        console.log('⚙️ 打包完成现在注入SDK等文件')
-
         if (typeof inputs === 'string') {
           await injectScript(inputs)
         } else if (inputs instanceof Array) {
@@ -72,8 +75,6 @@ export const injectUsefulPlugin: PluginType = (config) => {
         } else {
           await Promise.all(Object.values(inputs).map(async (output) => await injectScript(output)))
         }
-
-        console.log('✅ 打包完成注入SDK等文件完成')
       },
     },
     {
