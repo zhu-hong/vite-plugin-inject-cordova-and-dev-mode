@@ -1,6 +1,6 @@
-import type { Plugin } from 'vite'
+import type { HtmlTagDescriptor, Plugin } from 'vite'
 import { readFile, writeFile } from 'node:fs/promises'
-import { resolve, parse } from 'node:path'
+import { resolve, parse, dirname } from 'node:path'
 
 interface IPluginConfig {
   /**
@@ -18,42 +18,45 @@ interface IPluginConfig {
 export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[] = (config = {}) => {
   const { devCondition = 'localStorage.getItem("debug")', devInject = false } = config
 
-  const CSPContent = `default-src 'self' data: blob: https://* http://*; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* http://*; style-src 'self' 'unsafe-inline' data: blob:; connect-src *;`
-
-  const IN_CORDOVA = 'window.IN_CORDOVA=window.april||!1;'
-
   let outDir: string = ''
-  let intputs: string | string[] | { [entryAlias: string]: string } = ''
+  let inputs: string | string[] | { [entryAlias: string]: string } = ''
   const headMatch = /([ \t]*)<head[^>]*>/i
 
   const injectScript = async (filepath: string) => {
-    let html = String(await readFile(resolve(outDir, `${parse(filepath).name}.html`)))
+    const pwd = process.cwd()
+    filepath = filepath.replace(pwd + '/', '')
+
+    const outputHtml = resolve(outDir, filepath)
+    let html = String(await readFile(outputHtml))
 
     // 注入cordova脚本
     const injectCordova = html.replace(
       headMatch,
       (match) => `${match}
-  <meta http-equiv="Content-Security-Policy" content="${CSPContent}">
-  <script src="https://inner.shell.emtob.com/cordova.js"></script>
-  <script>${IN_CORDOVA}</script>`,
+  <script src="https://inner.shell.emtob.com/cordova.js"></script>`,
     )
 
-    // 注入前往调试页的条件动作
-    const injectDevModeCondition = injectCordova.replace(
-      headMatch,
-      (match) => `${match}
-  <script>if(${devCondition}){location.href="./${parse(filepath).name}.dev.html"+location.search+location.hash};</script>`,
-    )
-    await writeFile(resolve(outDir, `${parse(filepath).name}.html`), injectDevModeCondition)
-
-    // 创建devpage注入vconsole
-    const injectDevMode = injectCordova.replace(
-      headMatch,
-      (match) => `${match}
-  <script src="./vconsole.min.js"></script>
-  <script>vConsole=new VConsole({onReady(){vConsole.show()}});console.log(navigator.userAgent);</script>`,
-    )
-    await writeFile(resolve(outDir, `${parse(filepath).name}.dev.html`), injectDevMode)
+    await Promise.all([
+      (async () => {
+        // 注入前往调试页的条件动作和vconsole
+        const injectDevModeConditionAndVConsole = injectCordova.replace(
+          headMatch,
+          (match) => `${match}
+  <script>if(${devCondition}){location.href='./${parse(filepath).name}.dev.html'+location.search+location.hash}</script>`,
+        )
+        await writeFile(outputHtml, injectDevModeConditionAndVConsole)
+      })(),
+      (async () => {
+        // 创建devpage
+        const injectDevMode = injectCordova.replace(
+          headMatch,
+          (match) => `${match}
+  <script src='./vconsole.min.js'></script>
+  <script>_vConsole=new VConsole({onReady(){console.log(navigator.userAgent),_vConsole.show()}});</script>`,
+        )
+        await writeFile(resolve(outDir, dirname(filepath), `${parse(filepath).name}.dev.html`), injectDevMode)
+      })(),
+    ])
   }
 
   return [
@@ -63,15 +66,15 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
       enforce: 'post',
       configResolved: (cfg) => {
         outDir = cfg.build.outDir
-        intputs = cfg.build.rollupOptions.input ?? resolve(outDir, 'index.html')
+        inputs = cfg.build.rollupOptions.input ?? resolve(process.cwd(), 'index.html')
       },
-      closeBundle: async () => {
-        if(typeof intputs === 'string') {
-          await injectScript(intputs)
-        } else if(intputs instanceof Array) {
-          await Promise.all((intputs as string[]).map(async (output) => await injectScript(output)))
+      writeBundle: async () => {
+        if (typeof inputs === 'string') {
+          await injectScript(inputs)
+        } else if (inputs instanceof Array) {
+          await Promise.all((inputs as string[]).map(async (output) => await injectScript(output)))
         } else {
-          await Promise.all(Object.values(intputs).map(async (output) => await injectScript(output)))
+          await Promise.all(Object.values(inputs).map(async (output) => await injectScript(output)))
         }
       },
     },
@@ -80,39 +83,23 @@ export const injectCordovaAndDevModePlugin: (config?: IPluginConfig) => Plugin[]
       apply: 'serve',
       transformIndexHtml: {
         handler: (html) => {
+          const tags: HtmlTagDescriptor[] = []
+
+          if (devInject) {
+            tags.push({
+              tag: 'script',
+              injectTo: 'head-prepend',
+              attrs: {
+                'src': 'https://inner.shell.emtob.com/cordova.js',
+              },
+            })
+          }
+
           return {
             html,
-            tags: devInject ? [
-              {
-                tag: 'script',
-                injectTo: 'head-prepend',
-                children: IN_CORDOVA,
-              },
-              {
-                tag: 'meta',
-                injectTo: 'head-prepend',
-                attrs: {
-                  'http-equiv': 'Content-Security-Policy',
-                  'content': CSPContent,
-                },
-              },
-              {
-                tag: 'script',
-                injectTo: 'head-prepend',
-                attrs: {
-                  'src': 'https://inner.shell.emtob.com/cordova.js',
-                },
-              }
-            ] : [
-              {
-                tag: 'script',
-                injectTo: 'head-prepend',
-                children: IN_CORDOVA,
-              },
-            ],
+            tags,
           }
         },
-        order: 'post',
       },
     },
   ]
