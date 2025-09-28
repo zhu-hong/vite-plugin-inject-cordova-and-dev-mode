@@ -1,6 +1,6 @@
 import type { HtmlTagDescriptor, Plugin } from 'vite'
 import { readFile, writeFile } from 'node:fs/promises'
-import { resolve, parse, dirname } from 'node:path'
+import { resolve, parse, dirname, relative } from 'node:path'
 
 interface IPluginConfig {
   injectSdkWhenDev?: boolean
@@ -21,8 +21,7 @@ export const injectUsefulPlugin: PluginType = (config) => {
   const headMatch = /([ \t]*)<head[^>]*>/i
 
   const injectScript = async (filepath: string) => {
-    const pwd = process.cwd()
-    filepath = filepath.replace(pwd + '/', '')
+    filepath = relative(process.cwd(), filepath)
 
     const outputHtml = resolve(outDir, filepath)
     let html = String(await readFile(outputHtml))
@@ -65,7 +64,7 @@ export const injectUsefulPlugin: PluginType = (config) => {
       enforce: 'post',
       configResolved: (cfg) => {
         outDir = cfg.build.outDir
-        inputs = cfg.build.rollupOptions.input ?? resolve(process.cwd(), 'index.html')
+        inputs = cfg.build.rollupOptions.input ?? resolve('index.html')
       },
       writeBundle: async () => {
         if (typeof inputs === 'string') {
