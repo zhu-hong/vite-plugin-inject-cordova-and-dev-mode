@@ -6,12 +6,13 @@ interface IPluginConfig {
   injectSdkWhenDev?: boolean
   jumpDevpageCondition?: string
   injectResetcss?: boolean
+  vConsoleAutoOpen?: boolean
 }
 
 type PluginType = (config?: IPluginConfig) => Plugin[]
 
 export const injectUsefulPlugin: PluginType = (config) => {
-  const { jumpDevpageCondition = `localStorage.getItem('devmode')`, injectSdkWhenDev = false, injectResetcss = true } = config ?? {}
+  const { jumpDevpageCondition = `localStorage.getItem('devmode')`, injectSdkWhenDev = false, injectResetcss = true, vConsoleAutoOpen = false } = config ?? {}
 
   let outDir: string = ''
   let inputs: string | string[] | { [entryAlias: string]: string } = ''
@@ -50,7 +51,7 @@ export const injectUsefulPlugin: PluginType = (config) => {
           headMatch,
           (match) => `${match}
     <script src='./vconsole.min.js'></script>
-    <script>_vConsole=new VConsole({onReady(){console.log(navigator.userAgent),_vConsole.show()}});</script>`,
+    <script>_vConsole=new VConsole({onReady(){console.log(navigator.userAgent)${vConsoleAutoOpen?',_vConsole.show()':''}}});</script>`,
         )
         await writeFile(resolve(outDir, dirname(filepath), `${parse(filepath).name}.dev.html`), injectDevMode)
       })(),
